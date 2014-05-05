@@ -24,7 +24,8 @@ byte string_received=0;
 #define DEVICES_MAX          10
 Device *devices[DEVICES_MAX + 1]; //null terminated
 static void updateFromCloud(Device *pMyDevice);
-double myDATA = 0;
+double myDATA = 7;
+int waterLevelDATA = 80;
 const int INPUT_LEN = 20;
 char strData[INPUT_LEN+1];
 unsigned long lastRead = millis();
@@ -34,10 +35,11 @@ unsigned long lastRead = millis();
 
 
 //most important thing to change here is the device ID, list is here: http://ninjablocks.com/pages/device-ids   ph=226, text=240
-Device myDevice = {"0", 0, 226
+Device phDevice = {"0", 0, 2000
     , strData, INPUT_LEN, myDATA, false
     , &updateFromCloud
-};              
+};
+
 
 
 //struct Device {
@@ -71,8 +73,8 @@ void initDevices() {
     devices[i] = (Device*)0;
   }
  
-  devices[0] = &myDevice;
-  updateFromCloud(&myDevice);
+  devices[0] = &phDevice;
+  updateFromCloud(&phDevice);
 }
 
 
@@ -106,14 +108,13 @@ void loop()
   unsigned long timeNow = millis();
   if(timeNow >= lastRead + TIMEDELAY) {
    myserial.print("R\r");             
-//   Serial.print("taking reading... ");
    received_from_sensor=myserial.readBytesUntil(13,ph_data,20); //we read the data sent from pH Circuit until we see a <CR>. We also count how many character have been received.  
    ph_data[received_from_sensor]=0; 
-//   Serial.print("received: ");
-//   Serial.println(ph_data);
+   Serial.print("received: ");
+   Serial.println(ph_data);
    ph=atof(ph_data);
-   myDevice.intDATA = ph;
-//myDevice.intDATA = 9;
+   phDevice.intDATA = ph;
+   
    lastRead = timeNow;
   }
 
